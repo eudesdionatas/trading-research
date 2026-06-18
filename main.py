@@ -7,6 +7,8 @@ dados = yf.download(
     auto_adjust=True
 )
 
+print(dados.head())
+print(dados.tail())
 
 dados.to_csv("data/raw/PETR4.csv")
 
