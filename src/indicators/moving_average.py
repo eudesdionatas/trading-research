@@ -1,49 +1,23 @@
+import os
 import pandas as pd
 
-caminho_csv = "data/raw/PETR4.csv"
 
-def carregar_dados(caminho_csv):
-    """Carrega os dados históricos e garante a ordenação cronológica."""
-    df = pd.read_csv(caminho_csv, parse_dates=True, index_col=0)
-    df = df.sort_index()
+def calcular(df, ativo, tempo_grafico, calc_dir, **kwargs):
+    """Calcula a Média Móvel e salva o arquivo específico na pasta calc."""
+    periodos = kwargs.get("periodos", 20)
+    coluna_calculo = "Close"
 
-    if isinstance(df.columns, pd.MultiIndex):
-        df.columns = df.columns.droplevel(1)
+    print(f"    -> Calculando Média Móvel de {periodos} períodos para {ativo}...")
 
-    return df
+    # Instancia um DataFrame apenas com o resultado do indicador
+    df_calc = pd.DataFrame(index=df.index)
+    df_calc[f"MA_{periodos}"] = (
+        df[coluna_calculo].rolling(window=periodos).mean()
+    )
 
+    # Nome do arquivo conforme seu padrão: NOME-DO-ATIVO_TEMPO-GRÁFICO_INDICADOR_VALORES.csv
+    nome_saida = f"{ativo}_{tempo_grafico}_MA_{periodos}.csv"
+    caminho_saida = os.path.join(calc_dir, nome_saida)
 
-def calcular_medias_moveis(df):
-    """Calcula as médias móveis aritméticas de 11 e 40 períodos
-
-    baseadas no Fechamento Ajustado (Adj Close).
-    """
-    print("Calculando indicadores...")
-
-    # Média Móvel Simples (SMA) de 11 períodos
-    df["MA_11"] = df["Adj Close"].rolling(window=11).mean()
-
-    # Média Móvel Simples (SMA) de 40 períodos
-    df["MA_40"] = df["Adj Close"].rolling(window=40).mean()
-
-    return df
-
-
-# --- Execução do Projeto ---
-if __name__ == "__main__":
-    arquivo = "data/raw/PETR4.csv"
-
-    # 1. Carregar
-    df_projeto = carregar_dados(arquivo)
-
-    # 2. Calcular Indicadores
-    df_projeto = calcular_medias_moveis(df_projeto)
-
-    # Visualizando o resultado final com as novas colunas
-    print("\n--- DataFrame Atualizado (Últimos dias) ---")
-    colunas_historico = ["Adj Close", "MA_11", "MA_40"]
-    print(df_projeto[colunas_historico].tail(10))
-
-    # Opcional: Verificar as primeiras linhas para notar o efeito do "Warm-up"
-    print("\n--- DataFrame Atualizado (Primeiros dias) ---")
-    print(df_projeto[colunas_historico].head(15))
+    df_calc.to_csv(caminho_saida)
+    print(f"       Salvo: {nome_saida}")
