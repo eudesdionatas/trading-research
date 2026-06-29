@@ -1,26 +1,9 @@
-"""
-import yfinance as yf
-
-dados = yf.download(
-    "PETR4.SA",
-    start="2020-01-01",
-    end="2026-01-01",
-    auto_adjust=True
-)
-
-print(dados.head())
-print(dados.tail())
-
-dados.to_csv("data/raw/PETR4.csv")
-
-print("Arquivo salvo com sucesso!")
-"""
-
 import os
 import re
 import pandas as pd
 
 from src.indicators import rodar_todos_indicadores
+from src.strategies import rodar_todas_estrategias
 
 # Definindo caminhos globais (usando caminhos relativos robustos)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -91,7 +74,6 @@ def processar_pipeline():
         df_raw = df_raw.sort_index()
 
         # --- PARTE 1: CÁLCULO DE INDICADORES PENDENTES ---
-        print(f"  -> Verificando/Calculando indicadores para {item['ativo']}...")
         # TODO: Aqui plugar o módulo src.indicadores para calcular e salvar em data/calc
         print(f"  -> Verificando/Calculando indicadores para {item['ativo']}...")
         rodar_todos_indicadores(
@@ -99,8 +81,9 @@ def processar_pipeline():
         )
 
         # --- PARTE 2: GERAÇÃO DE SINAIS E ESTRATÉGIAS ---
-        print(f"  -> Computando estratégias de trade para {item['ativo']}...")
         # TODO: Aqui plugar o módulo src.estrategias para gerar sinais e salvar em data/strategies
+        print(f"  -> Computando estratégias de trade para {item['ativo']}...")
+        rodar_todas_estrategias(item["ativo"], item["tempo_grafico"], RAW_DIR, INDICATORS_DIR, STRATEGIES_DIR)
 
     print("\nPipeline finalizado com sucesso!")
 
