@@ -1,0 +1,26 @@
+import os
+import pandas as pd
+
+
+def calcular_ema(df, ativo, tempo_grafico, calc_dir, **kwargs):
+    """Calcula a Média Móvel Exponencial (EMA) e salva o arquivo específico na pasta calc."""
+    periodos = kwargs.get("periodos", 20)
+    coluna_calculo = "Close"
+
+    print(f"    -> Calculando Média Móvel Exponencial de {periodos} períodos para {ativo}...")
+
+    # Instancia um DataFrame apenas com o resultado do indicador
+    df_calc = pd.DataFrame(index=df.index)
+    
+    # .ewm() calcula a média ponderada exponencialmente.
+    # span=periodos define o número de períodos e adjust=False aplica a fórmula clássica de EMA.
+    df_calc[f"EMA_{periodos}"] = (
+        df[coluna_calculo].ewm(span=periodos, adjust=False).mean()
+    )
+
+    # Nome do arquivo conforme seu padrão: NOME-DO-ATIVO_TEMPO-GRÁFICO_INDICADOR_VALORES.csv
+    nome_saida = f"{ativo}_{tempo_grafico}_EMA_{periodos}.csv"
+    caminho_saida = os.path.join(calc_dir, nome_saida)
+
+    df_calc.to_csv(caminho_saida)
+    print(f"       Salvo: {nome_saida}")
