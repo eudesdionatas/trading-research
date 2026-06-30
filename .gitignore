@@ -1,2 +1,24 @@
+# Cache do Python (Corrige o problema do Sync travado)
 **/__pycache__/
 *.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Ambiente Virtual (Evita subir os gigabytes da pasta .venv)
+.venv/
+venv/
+ENV/
+
+# Configurações do VS Code
+.vscode/
+
+# Variáveis de ambiente / Credenciais (Segurança)
+.env
+
+# Regras para a pasta Data
+data/*
+!data/raw/
+
+# Resultados e relatórios locais (Opcional, caso queira ignorar gráficos gerados)
+# results/*
