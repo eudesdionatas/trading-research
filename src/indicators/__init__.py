@@ -4,6 +4,7 @@ from . import bollinger
 from . import macd
 from . import trend_levels
 from . import atr_fib_trend
+from . import trend_filter_2pole
 
 def rodar_todos_indicadores(df, ativo, tempo_grafico, calc_dir):
     """Executa a função de cálculo de cada módulo de indicador
@@ -31,5 +32,8 @@ def rodar_todos_indicadores(df, ativo, tempo_grafico, calc_dir):
 
     # 6. ATR + Fibonacci Trend (100 períodos, multiplicador 3.0)
     atr_fib_trend.calcular(df, ativo, tempo_grafico, calc_dir, ma_type="SMMA", ma_len=100, atr_len=100, atr_mult=3.0)
+
+    # 7. Trend Filter 2 Pole (20 períodos, damping 0.1, bands 1.0)
+    trend_filter_2pole.calcular(df, ativo, tempo_grafico, calc_dir, length=20, damping=0.1, bands=1.0)
 
     # Conforme criar novos arquivos (ex: rsi.py), basta importá-los e chamá-los aqui
