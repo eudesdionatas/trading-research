@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 
-def calcular_ema(df, ativo, tempo_grafico, calc_dir, **kwargs):
+def calcular(df, ativo, tempo_grafico, calc_dir, **kwargs):
     """Calcula a Média Móvel Exponencial (EMA) e salva o arquivo específico na pasta calc."""
     periodos = kwargs.get("periodos", 20)
     coluna_calculo = "Close"

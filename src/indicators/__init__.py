@@ -1,4 +1,5 @@
-from . import moving_average
+from . import exponential_moving_average 
+from . import simple_moving_average
 from . import rsi
 from . import bollinger
 from . import macd
@@ -11,12 +12,20 @@ def rodar_todos_indicadores(df, ativo, tempo_grafico, calc_dir):
 
     cadastrado no projeto.
     """
-    # Exemplo: Rodando média de 11 e de 40 conforme seus testes anteriores
-    moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos=  7)
-    moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos= 11)
-    moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos= 17)
-    moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos= 35)
-    moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos=200)
+    # Exemplo: Rodando média móvel simples de 11 e de 40 conforme seus testes anteriores
+    simple_moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos=  7)
+    simple_moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos= 11)
+    simple_moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos= 17)
+    simple_moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos= 35)
+    simple_moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos=200)
+
+
+    # Exemplo: Rodando média móvel exponencial de 7 e de 20 conforme seus testes anteriores
+    exponential_moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos=  7)
+    exponential_moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos= 11)
+    exponential_moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos= 17)
+    exponential_moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos= 35)
+    exponential_moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos= 200)
 
     # 2. RSI Clássico de 14 períodos
     rsi.calcular(df, ativo, tempo_grafico, calc_dir, periodos=14)

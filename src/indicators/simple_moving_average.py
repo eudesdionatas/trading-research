@@ -11,12 +11,12 @@ def calcular(df, ativo, tempo_grafico, calc_dir, **kwargs):
 
     # Instancia um DataFrame apenas com o resultado do indicador
     df_calc = pd.DataFrame(index=df.index)
-    df_calc[f"MA_{periodos}"] = (
+    df_calc[f"SMA_{periodos}"] = (
         df[coluna_calculo].rolling(window=periodos).mean()
     )
 
     # Nome do arquivo conforme seu padrão: NOME-DO-ATIVO_TEMPO-GRÁFICO_INDICADOR_VALORES.csv
-    nome_saida = f"{ativo}_{tempo_grafico}_MA_{periodos}.csv"
+    nome_saida = f"{ativo}_{tempo_grafico}_SMA_{periodos}.csv"
     caminho_saida = os.path.join(calc_dir, nome_saida)
 
     df_calc.to_csv(caminho_saida)
