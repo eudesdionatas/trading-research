@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 
-def plotar_bollinger(ativo, tempo_grafico, periodos, desvios, raw_dir, indicators_dir, dias_visuais=400):
+def plotar_bollinger(ativo, tempo_grafico, periodos, desvios, raw_dir, indicators_dir, dias_visuais=300):
     """
     Carrega os dados brutos e os dados do indicador Bandas de Bollinger,
     junta-os e plota o gráfico interativo para validação visual.
