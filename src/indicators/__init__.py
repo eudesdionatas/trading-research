@@ -1,11 +1,12 @@
 from . import exponential_moving_average 
 from . import simple_moving_average
 from . import rsi
-from . import bollinger
+from . import bollinger_bands
 from . import macd
 from . import trend_levels
 from . import atr_fib_trend
 from . import trend_filter_2pole
+from . import support_resistance
 
 def rodar_todos_indicadores(df, ativo, tempo_grafico, calc_dir):
     """Executa a função de cálculo de cada módulo de indicador
@@ -19,7 +20,6 @@ def rodar_todos_indicadores(df, ativo, tempo_grafico, calc_dir):
     simple_moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos= 35)
     simple_moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos=200)
 
-
     # Exemplo: Rodando média móvel exponencial de 7 e de 20 conforme seus testes anteriores
     exponential_moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos=  7)
     exponential_moving_average.calcular(df, ativo, tempo_grafico, calc_dir, periodos= 11)
@@ -31,7 +31,7 @@ def rodar_todos_indicadores(df, ativo, tempo_grafico, calc_dir):
     rsi.calcular(df, ativo, tempo_grafico, calc_dir, periodos=14)
 
     # 3. Bandas de Bollinger Padrão (20 períodos, 2 desvios)
-    bollinger.calcular(df, ativo, tempo_grafico, calc_dir, periodos=20, desvios=2)
+    bollinger_bands.calcular(df, ativo, tempo_grafico, calc_dir, periodos=20, desvios=2)
 
     # 4. MACD Padrão de Mercado (12, 26, 9)
     macd.calcular(df, ativo, tempo_grafico, calc_dir, fast=12, slow=26, sinal=9)
@@ -44,5 +44,8 @@ def rodar_todos_indicadores(df, ativo, tempo_grafico, calc_dir):
 
     # 7. Trend Filter 2 Pole (20 períodos, damping 0.1, bands 1.0)
     trend_filter_2pole.calcular(df, ativo, tempo_grafico, calc_dir, length=20, damping=0.1, bands=1.0)
+
+    # 8. Suporte e Resistência (20 períodos)
+    support_resistance.calcular(df, ativo, tempo_grafico, calc_dir, periodos=20)
 
     # Conforme criar novos arquivos (ex: rsi.py), basta importá-los e chamá-los aqui
