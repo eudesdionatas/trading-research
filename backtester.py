@@ -12,6 +12,10 @@ STRATEGIES_DIR = os.path.join(BASE_DIR, "data", "strategies")
 
 def listar_estrategias_processadas():
     """Lê a pasta strategies e retorna os ativos e estratégias disponíveis."""
+    # Proteção caso a pasta não exista
+    if not os.path.exists(STRATEGIES_DIR):
+        return []
+        
     arquivos = [f for f in os.listdir(STRATEGIES_DIR) if f.endswith(".csv")]
     
     opcoes = []
@@ -48,8 +52,8 @@ def plotar_desempenho(df_trades, ativo, tempo, nome_estrategia, capital_inicial)
     ), row=1, col=1)
 
     # Marcar os pontos de Gain e Loss na curva
-    gains = df_trades[df_trades["Retorno_%"] > 0]
-    losses = df_trades[df_trades["Retorno_%"] <= 0]
+    gains = df_trades[df_trades["Resultado_R$"] > 0]
+    losses = df_trades[df_trades["Resultado_R$"] <= 0]
     
     fig.add_trace(go.Scatter(
         x=gains["Data_Saida"], y=gains["Capital_Acumulado"],
@@ -111,7 +115,6 @@ def exibir_relatorio():
         print("Escolha inválida. Encerrando.")
         return
 
-    # Pergunta o Capital Inicial
     entrada_capital = input("Digite o capital inicial simulado em R$ [Padrão: 10000]: ")
     try:
         capital_inicial = float(entrada_capital) if entrada_capital.strip() else 10000.0
@@ -120,39 +123,51 @@ def exibir_relatorio():
 
     ativo, tempo, nome_estrategia = selecionada
 
+    # --- DICIONÁRIO DE MULTIPLICADORES B3 ---
+    multiplicador = 1.0  # Padrão para ações (1 ponto = 1 Real)
+    if "WIN" in ativo:
+        multiplicador = 0.20
+    elif "WDO" in ativo:
+        multiplicador = 10.00
+    elif "IND" in ativo: # Índice Cheio
+        multiplicador = 1.00
+    elif "DOL" in ativo: # Dólar Cheio
+        multiplicador = 50.00
+
+    # Definimos que operaremos apenas 1 contrato/ação por padrão para simulação base
+    qtd_contratos = 1
+
     print(f"\nRodando simulação para {ativo} com {nome_estrategia} a partir de R$ {capital_inicial:,.2f}...\n")
+    print(f"Configuração do Ativo: {qtd_contratos} contrato(s) com multiplicador de R$ {multiplicador} por ponto.")
     
-    df_trades = rodar_backtest(ativo, tempo, nome_estrategia, RAW_DIR, STRATEGIES_DIR)
+    # Repassamos o multiplicador para o motor de cálculo
+    df_trades = rodar_backtest(ativo, tempo, nome_estrategia, RAW_DIR, STRATEGIES_DIR, multiplicador, qtd_contratos)
 
     if df_trades.empty:
         print("Nenhum trade foi finalizado no período testado.")
         return
 
     total_trades = len(df_trades)
-    lucros = df_trades[df_trades["Retorno_%"] > 0]
-    prejuizos = df_trades[df_trades["Retorno_%"] <= 0]
+    lucros = df_trades[df_trades["Resultado_R$"] > 0]
+    prejuizos = df_trades[df_trades["Resultado_R$"] <= 0]
     
     win_rate = (len(lucros) / total_trades) * 100
-    maior_ganho = df_trades["Retorno_%"].max()
-    maior_perda = df_trades["Retorno_%"].min()
+    
+    # Variáveis corrigidas para não usarem $ no nome
+    maior_ganho_rs = df_trades["Resultado_R$"].max()
+    maior_perda_rs = df_trades["Resultado_R$"].min()
 
-    # --- SIMULAÇÃO DE CAIXA E JUROS COMPOSTOS ---
-    # Fator Multiplicador (ex: retorno de 2% vira 1.02, perda de -1% vira 0.99)
-    df_trades["Fator_Crescimento"] = 1 + (df_trades["Retorno_%"] / 100)
+    # --- SIMULAÇÃO DE CAIXA REAL ---
+    # Somamos o dinheiro que entrou e saiu no caixa usando o acumulado (cumsum)
+    df_trades["Capital_Acumulado"] = capital_inicial + df_trades["Resultado_R$"].cumsum()
     
-    # Capital Acumulado (Juros Compostos ao longo do tempo)
-    df_trades["Capital_Acumulado"] = capital_inicial * df_trades["Fator_Crescimento"].cumprod()
-    
-    # Métricas Financeiras
     capital_final = df_trades["Capital_Acumulado"].iloc[-1]
     lucro_liquido_real = capital_final - capital_inicial
-    retorno_acumulado_real = (lucro_liquido_real / capital_inicial) * 100
+    retorno_sobre_capital = (lucro_liquido_real / capital_inicial) * 100
 
-    # Drawdown agora é calculado sobre as quedas do Capital_Acumulado (Mais preciso)
+    # Drawdown calculado em cima do capital em Reais
     df_trades["Pico_Capital"] = df_trades["Capital_Acumulado"].cummax()
-    # Quanto de dinheiro perdeu do topo
     df_trades["Drawdown_R$"] = df_trades["Capital_Acumulado"] - df_trades["Pico_Capital"]
-    # Quanto isso representa em % do próprio topo
     df_trades["Drawdown_%"] = (df_trades["Drawdown_R$"] / df_trades["Pico_Capital"]) * 100
     drawdown_maximo_pct = df_trades["Drawdown_%"].min()
 
@@ -166,10 +181,10 @@ def exibir_relatorio():
     print(f"Capital Inicial    : R$ {capital_inicial:,.2f}")
     print(f"Capital Final      : R$ {capital_final:,.2f}")
     print(f"Lucro Líquido      : R$ {lucro_liquido_real:,.2f}")
-    print(f"Retorno Composto   : {retorno_acumulado_real:.2f}%")
+    print(f"Retorno s/ Capital : {retorno_sobre_capital:.2f}%")
     print(f"Drawdown Máximo    : {drawdown_maximo_pct:.2f}%")
-    print(f"Maior Gain em Trade: {maior_ganho:.2f}%")
-    print(f"Maior Loss em Trade: {maior_perda:.2f}%")
+    print(f"Maior Gain (R$)    : R$ {maior_ganho_rs:,.2f}")
+    print(f"Maior Loss (R$)    : R$ {maior_perda_rs:,.2f}")
     print("===================================================\n")
 
     plotar_desempenho(df_trades, ativo, tempo, nome_estrategia, capital_inicial)
