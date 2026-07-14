@@ -8,6 +8,7 @@ from . import atr_fib_trend
 from . import trend_filter_2pole
 from . import support_resistance
 from . import historical_volatility
+from . import stochastic_oscillator
 
 def rodar_todos_indicadores(df, ativo, tempo_grafico, calc_dir):
     """Executa a função de cálculo de cada módulo de indicador
@@ -51,5 +52,8 @@ def rodar_todos_indicadores(df, ativo, tempo_grafico, calc_dir):
 
     # 9. Volatilidade Histórica (20 períodos, 252 dias úteis)
     historical_volatility.calcular(df, ativo, tempo_grafico, calc_dir, periodos=20)
+    
+    # 10. Oscilador Estocástico (14 períodos, suavização 3)
+    stochastic_oscillator.calcular(df, ativo, tempo_grafico, calc_dir, periodos_k=14, suavizacao_d=3)
     
     # Conforme criar novos arquivos (ex: rsi.py), basta importá-los e chamá-los aqui
