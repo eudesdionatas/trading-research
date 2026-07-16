@@ -7,7 +7,7 @@ from plotly.subplots import make_subplots
 def plotar_estocastico(ativo, tempo_grafico, periodos_k, suavizacao_d, raw_dir, indicators_dir, dias_visuais=200):
     """
     Carrega os dados e plota os candles junto com o Oscilador Estocástico (%K e %D)
-    em um subgráfico inferior para validação visual.
+    em um subgráfico inferior, com marcas explícitas de 0, 20, 50, 80 e 100 no eixo Y.
     """
     print(f"Preparando visualização para {ativo} (Estocástico %K:{periodos_k}, %D:{suavizacao_d})...")
 
@@ -75,18 +75,26 @@ def plotar_estocastico(ativo, tempo_grafico, periodos_k, suavizacao_d, raw_dir, 
         col=1,
     )
 
-    # Linhas de limites (80 e 20) no Painel 2
-    for limite in [20, 80]:
+    # Linhas de limites (20, 50, 80) no Painel 2
+    for limite in [20, 50, 80]:
         fig.add_shape(
             type="line",
             x0=df.index[0],
             y0=limite,
             x1=df.index[-1],
             y1=limite,
-            line=dict(color="rgba(255, 255, 255, 0.3)", width=1, dash="dot"),
+            line=dict(color="rgba(255, 255, 255, 0.2)", width=1, dash="dot"),
             row=2,
             col=1,
         )
+
+    # --- MODIFICAÇÃO PRINCIPAL: Forçar o eixo Y a exibir os valores de sobrecompra/sobrevenda ---
+    fig.update_yaxes(
+        tickvals=[0, 20, 50, 80, 100],  # Força a exibição destes valores específicos
+        range=[-5, 105],                # Dá um pequeno respiro no topo e fundo do painel
+        row=2,
+        col=1
+    )
 
     fig.update_layout(
         title=f"Validação Visual: {ativo} - Oscilador Estocástico (%K={periodos_k}, %D={suavizacao_d})",
