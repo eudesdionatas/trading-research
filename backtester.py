@@ -170,6 +170,21 @@ def exibir_relatorio():
     df_trades["Drawdown_R$"] = df_trades["Capital_Acumulado"] - df_trades["Pico_Capital"]
     df_trades["Drawdown_%"] = (df_trades["Drawdown_R$"] / df_trades["Pico_Capital"]) * 100
     drawdown_maximo_pct = df_trades["Drawdown_%"].min()
+# ... (cálculos de win_rate e capital_final anteriores permanecem iguais)
+
+    # --- NOVOS CÁLCULOS DE MÁXIMOS E MÍNIMOS DE ALVOS ---
+    if "Stop_Loss_Alvo" in df_trades.columns and df_trades["Stop_Loss_Alvo"].notna().any():
+        max_loss_val = df_trades["Stop_Loss_Alvo"].max()
+        min_loss_val = df_trades["Stop_Loss_Alvo"].min()
+        mean_loss_val = df_trades["Stop_Loss_Alvo"].mean()
+
+        max_gain_val = df_trades["Take_Profit_Alvo"].max()
+        min_gain_val = df_trades["Take_Profit_Alvo"].min()
+        mean_gain_val = df_trades["Take_Profit_Alvo"].mean()
+        
+        exibir_alvos = True
+    else:
+        exibir_alvos = False
 
     print("============= RELATÓRIO DE DESEMPENHO =============")
     print(f"Ativo / Tempo      : {ativo} ({tempo})")
@@ -183,8 +198,21 @@ def exibir_relatorio():
     print(f"Lucro Líquido      : R$ {lucro_liquido_real:,.2f}")
     print(f"Retorno s/ Capital : {retorno_sobre_capital:.2f}%")
     print(f"Drawdown Máximo    : {drawdown_maximo_pct:.2f}%")
+    print("---------------------------------------------------")
     print(f"Maior Gain (R$)    : R$ {maior_ganho_rs:,.2f}")
     print(f"Maior Loss (R$)    : R$ {maior_perda_rs:,.2f}")
+    
+    # Exibe os 4 valores de limites caso a estratégia utilize alvos baseados em volatilidade
+    if exibir_alvos:
+        print("---------------------------------------------------")
+        print(f"Janela de Alvos Calculados (Preço do Ativo):")
+        print(f"  > Take Profit Máximo : R$ {max_gain_val:,.2f}")
+        print(f"  > Take Profit Médio  : R$ {mean_gain_val:,.2f}")
+        print(f"  > Take Profit Mínimo : R$ {min_gain_val:,.2f}")
+        print(f"  > Stop Loss Máximo   : R$ {max_loss_val:,.2f}")
+        print(f"  > Stop Loss Médio    : R$ {mean_loss_val:,.2f}")
+        print(f"  > Stop Loss Mínimo   : R$ {min_loss_val:,.2f}")
+        
     print("===================================================\n")
 
     plotar_desempenho(df_trades, ativo, tempo, nome_estrategia, capital_inicial)

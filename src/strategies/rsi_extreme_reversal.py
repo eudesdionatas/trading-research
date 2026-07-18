@@ -51,7 +51,7 @@ def executar(ativo, tempo_grafico, raw_dir, indicators_dir, strategies_dir):
     # Exemplo de Regra Dinâmica:
     # Definimos que o Stop Loss será equivalente a 1 variação diária média calculada em Reais (Preço * Vol Diária).
     # O Take Profit (Gain) será 2 vezes o valor do Stop Loss (proporção matemática de 2 para 1).
-    df["Stop_Loss"] = round(df["Close"] * vol_diaria_decimal, 2)
+    df["Stop_Loss"] = round((df["Close"] * vol_diaria_decimal) * 2.0, 2)
     df["Take_Profit"] = round(df["Stop_Loss"] * 2.0, 2)
 
     # Evitar que em momentos de volatilidade nula o Stop fique zerado (mínimo de R$ 0.10, por exemplo)

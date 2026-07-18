@@ -85,7 +85,9 @@ def rodar_backtest(ativo, tempo_grafico, nome_estrategia, raw_dir, strategies_di
                     "Pontos_Capturados": round(pontos, 2),
                     "Resultado_R$": round(lucro_financeiro, 2),
                     "Retorno_%": round(retorno_pct, 2),
-                    "Status": motivo_saida
+                    "Status": motivo_saida,
+                    "Stop_Loss_Alvo": trade_atual.get("Stop_Loss"),
+                    "Take_Profit_Alvo": trade_atual.get("Take_Profit")                    
                 })
                 
                 lista_trades.append(trade_atual)
