@@ -52,8 +52,8 @@ def executar(ativo, tempo_grafico, raw_dir, indicators_dir, strategies_dir):
     df["Take_Profit"] = round(df["Stop_Loss"] * 2.0, 2)  # Mantém proporção 2:1
 
     # Filtros de segurança mínimos para evitar divisões por zero ou alvos irrisórios
-    # df["Stop_Loss"] = df["Stop_Loss"].clip(lower=0.15)
-    # df["Take_Profit"] = df["Take_Profit"].clip(lower=0.30)
+    df["Stop_Loss"] = df["Stop_Loss"].clip(lower=0.15)
+    df["Take_Profit"] = df["Take_Profit"].clip(lower=0.30)
 
     # 6. Salvar DataFrame de Sinais para o Backtester consumir
     nome_saida = f"{ativo}_{tempo_grafico}_RSI_ATR_EXTREME_REVERSAL.csv"
